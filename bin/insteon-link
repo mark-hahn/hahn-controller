@@ -1,0 +1,73 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var Insteon = require('../').Insteon;
+var util = require('util');
+var program = require('commander');
+var pkg = require('../package.json');
+var version = pkg.version;
+
+program
+  .version(version)
+  .usage('[options] <host:port> <device ...>')
+  .option('-c, --controller', 'devices are the controller')
+  .option('-u, --unlink', 'unlink devices from gateway')
+  .option('-g, --group <type>', 'group number to use for links', parseInt)
+  .option('-v, --verbose', 'more output')
+  .parse(process.argv);
+
+if(program.args.length < 2) {
+  return program.help();
+}
+
+var host, port;
+
+var devices = [];
+var idRegex = /^[0-9a-f]{2}\.?[0-9a-f]{2}\.?[0-9a-f]{2}$/i;
+
+program.args.forEach(function(arg) {
+  if(idRegex.test(arg)){
+    devices.push(arg.replace('.', ''));
+  } else {
+    var uriParts = arg.split(':');
+
+    host = uriParts[0];
+    if(uriParts.length > 1) {
+      port = parseInt(uriParts[1]);
+    }
+  }
+});
+
+
+
+console.log('Connecting to ' + host + ':' + port);
+var gw = new Insteon();
+
+gw.on('connect', function () {
+  if(program.unlink) {
+    gw.unlink(devices, program, function (err, links) {
+      if (err) {
+        console.log('unlinking failed: ' + err);
+        return gw.close();
+      }
+      console.log('unlinking done: \n\n' + util.inspect(links));
+      gw.close();
+    });
+  } else {
+    gw.link(devices, program, function (err, links) {
+      if (err) {
+        console.log('linking failed: ' + err);
+        return gw.close();
+      }
+      console.log('links created: \n\n' + util.inspect(links));
+      gw.close();
+    });
+  }
+});
+
+gw.on('close', function() {
+  console.log('Connection closed');
+});
+
+gw.connect(host, port);

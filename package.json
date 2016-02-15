@@ -1,0 +1,53 @@
+{
+  "version": "0.6.0",
+  "author": "Brandon Goode <brandon@automategreen.com>",
+  "name": "home-controller",
+  "description": "A Node Home Automation Controller for Insteon Devices",
+  "keywords": [
+    "automation",
+    "insteon"
+  ],
+  "homepage": "https://github.com/automategreen/home-controller",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/automategreen/home-controller"
+  },
+  "bugs": {
+    "email": "support@automategreen.com",
+    "url": "https://github.com/automategreen/home-controller/issues"
+  },
+  "main": "./index.js",
+  "engines": {
+    "node": ">= 0.10"
+  },
+  "dependencies": {
+    "commander": "^2.7.0",
+    "debug": "^2.1.0",
+    "eventsource": "^0.1.0",
+    "q": "^1.4.1"
+  },
+  "optionalDependencies": {
+    "serialport": "^2.0.0",
+    "spark": "^1.0.0"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "grunt": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-mocha-test": "*",
+    "blanket": "*",
+    "travis-cov": "*"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "config": {
+    "travis-cov": {
+      "threshold": 80
+    }
+  },
+  "license": "MIT"
+}
