@@ -1,21 +1,14 @@
-home-controller [![Build Status](https://travis-ci.org/automategreen/home-controller.png)](https://travis-ci.org/automategreen/home-controller)
-===============
-> a node package to control Insteon home automation devices
-> 
-> **WARNING** The new Insteon Hub (2245) does NOT have the required PLM over TCP interface.
-***
+Hahn-controller
+---
+
+A butchered Copy of **automategreen/home-controller**, a node package to control Insteon home automation devices.
+---
 
 Overview
 --------
 
-home-controller is a node package to control Insteon home automation devices.  The API uses the direct PLM connection over TCP, Serial connection or the cloud.  To control the Insteon devices on of the following is needed
-
-  - [Automate Green WiFi Hub i](https://github.com/automategreen/hub-i)
-  - [Automate Green PLM WiFi Adapter](http://blog.automategreen.com/post/plm-wifi-adapter)  - [Insteon Hub 2242](http://www.insteon.com/2242-222-insteon-hub.html)
-  - [Insteon SmartLinc](http://www.insteon.com/2412n-smartlinc-central-controller.html)
-  - [Insteon PowerLinc Modem](http://www.insteon.com/2412s-powerlinc-modem-serial.html) is required.
-
-**The new Insteon Hub 2245 is not supported.  Insteon has removed the PLM over TCP interface.**
+hahn-controller is a node package to control Insteon home automation devices.  The API uses the direct PLM connection over Serial.
+[Insteon PowerLinc Modem](http://www.insteon.com/2412s-powerlinc-modem-serial.html) is required.
 
 Table of Contents
 -----------------
@@ -62,14 +55,14 @@ Getting Started
 
 Install via npm:
 
-`npm install home-controller`
+`npm install hahn-controller`
 
 ### Example
 
-The example below is a simple RESTful interface using the home-controller module and Express.
+The example below is a simple RESTful interface using the hahn-controller module and Express.
 
 ```js
-var Insteon = require('home-controller').Insteon;
+var Insteon = require('hahn-controller').Insteon;
 var hub = new Insteon();
 var express = require('express');
 var app = express();
@@ -91,7 +84,7 @@ hub.connect(process.env.HUB_IP, function () {
 });
 ```
 
-### [Additional Examples](http://blog.automategreen.com/tag/home-controller-examples)
+### [Additional Examples](http://blog.automategreen.com/tag/hahn-controller-examples)
 
 API
 ---
@@ -131,7 +124,7 @@ API
   - The lighting function have been moved to the light class.  Old function are deprecated and will be removed with a later release.
   - Thermostat control is now available
   - As always, several bug were fixed (and probably several new one introduced).  Please open an issue if you find a bug.
-  - [Full releases notes](http://blog.automategreen.com/post/home-controller-0.4.0)
+  - [Full releases notes](http://blog.automategreen.com/post/hahn-controller-0.4.0)
 
 ### Insteon Gateway
 
@@ -140,7 +133,7 @@ API
 Add `require` statement to the app to access the Insteon class
 
 ```js
-var Insteon = require('home-controller').Insteon;
+var Insteon = require('hahn-controller').Insteon;
 ```
 
 The Insteon class inherits [EventEmitter](http://nodejs.org/api/events.html)
