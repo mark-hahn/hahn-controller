@@ -1,6 +1,5 @@
 'use strict';
 
-
 var net = require('net');
 var util = require('util');
 var events = require('events');
@@ -37,7 +36,7 @@ var Insteon = function () {
 
   this.queue = [];
   this.buffer = '';
-  this.commandTimeout = 200; // space between commands
+  this.commandTimeout = 2000; // space between commands
   this.commandRetries = 0;
 
   this.defaultTempUnits = Insteon.defaultTempUnits;
@@ -49,6 +48,21 @@ var Insteon = function () {
 };
 
 util.inherits(Insteon, events.EventEmitter);
+
+var lastSerialData  = 0;
+var serialDataRecvd = function() {
+  var delay = Date.now() - lastSerialData;
+  if(delay > 5) console.log(delay);
+  lastSerialData = Date.now();
+}
+var isSerialBusy = function(msg) {
+  if((Date.now() - lastSerialData) < 500) {
+    console.log('hahnctrl: busy waiting', msg);
+    return true;
+  }
+    else
+     console.log('hahnctrl: not busy', msg,  Date.now() - lastSerialData);
+}
 
 Insteon.prototype.connect = function(host, port, connectListener) {
 
@@ -240,21 +254,6 @@ Insteon.prototype.spark = function (sparkId, token, reconnectInterval) {
  **************************************************************************/
 
 
-var lastSerialData  = 0;
-
-function serialDataRecvd() {
-   var delay = Date.now() - lastSerialData;
-  //  if(delay > 5) console.log(delay);
-   lastSerialData = Date.now();
-}
-function isSerialBusy(msg) {
-   if((Date.now() - lastSerialData) < 1e3) {
-    //  console.log('hahnctrl: busy waiting', msg);
-     return true;
-   }
-    //  else
-      // console.log('hahnctrl: not busy', msg,  Date.now() - lastSerialData);
-}
 
 Insteon.prototype.sendCommand = function (cmd, timeout, next) {
   if (typeof timeout === 'function') {
@@ -278,19 +277,30 @@ Insteon.prototype.sendCommand = function (cmd, timeout, next) {
   return deferred.promise.nodeify(next);
 };
 
-function sendCommandNow(gw, status) {
-  if (gw.status) {
-    var newId, i, oldCmd, oldId;
-    newId = status.command.id;
-    for(i=0; i < gw.queue.length; i++) {
-      oldCmd = gw.queue[i].command
-      oldId = oldCmd.id;
-      if(newId === oldId) {
-        // console.log('hahn-ctrl replacing', oldCmd.id);
-        gw.queue[i] = status;
-        return
-      }
-    }
+function sendCommand(gw, status) {
+  // gw     = gw     || this.gw;
+  // status = status || this.status;
+  if(!status) {
+    return;
+  }
+  var sendBusy = !!gw.status;
+  // var recvBusy = isSerialBusy(status.command.id + ', ' + gw.queue.length);
+  if(sendBusy) {
+    // var newId, i, oldCmd, oldId;
+    // newId = status.command.id;
+    // for(i=0; i < gw.queue.length; i++) {
+    //   oldCmd = gw.queue[i].command
+    //   oldId = oldCmd.id;
+    //   if(newId === oldId) {
+    //     console.log('hahn-ctrl replacing', oldCmd.id);
+    //     gw.queue[i] = status;
+    //     // if (!sendBusy)
+    //       // setTimeout(sendCommand.bind({gw:gw, status:status}), 100);
+    //     return
+    //   }
+    // }
+    // if (!sendBusy)
+      // setTimeout(sendCommand.bind({gw:gw, status:status}), 100);
     return gw.queue.push(status);
   }
 
@@ -304,7 +314,7 @@ function sendCommandNow(gw, status) {
     try {
       gw.emit('sendCommand', status.command);
       if(gw.write) {
-        // console.log('hahn-ctrl sending cmd', status.command.id, Date.now());
+        console.log('hahn-ctrl sending cmd', status.command.id);
         gw.write(status.command.raw);
       }
     } catch (err) {
@@ -319,17 +329,6 @@ function sendCommandNow(gw, status) {
     }, timeout);
   }, 10);
 
-}
-
-function sendCommand(gw, status) {
-  if(!status) return;
-  // console.log('sc', status.command.id, Date.now());
-  var sndNowIntrvl = setInterval(function() {
-    if(!isSerialBusy(status.command.id)) {
-      sendCommandNow(gw, status);
-      clearInterval(sndNowIntrvl);
-    }
-  }, 100);
 }
 
 function sendCommandTimeout(gw, timeout, retries) {
